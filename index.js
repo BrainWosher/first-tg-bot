@@ -12,28 +12,31 @@ bot.telegram.setMyCommands([
   { command: 'get_all_tasks', description: 'All tasks' },
 ]);
 
-const getAllUsers = async (ctx) => {
+const getAllTasks = async (ctx) => {
   try {
     const response = await axios.get(API_URL);
-    const users = response.data;
-    console.log(users);
+    const tasks = response.data;
+    console.log(tasks);
     console.log(ctx);
 
-    if (!users.length) return ctx.reply('Нет зарегистрированных пользователей');
+    if (!tasks.length) return ctx.reply('Нет задач');
 
-    const userList = users
-      .map((user) => `🆔 ID: ${user.id}\n👤 Имя: ${user.name}\n📛 Логин: ${user.username}`)
+    const taskList = tasks
+      .map(
+        (task) =>
+          `🆔 ID: ${task.id}\n👤 Название: ${task.name}\n📛 Описание: ${task.username}\n🫡 Статус: ${task.state}`,
+      )
       .join('\n\n────────────────\n');
 
-    ctx.reply(`📃 Список пользователей (всего: ${users.length}):\n\n${userList}`);
+    ctx.reply(`📃 Список задач (всего: ${tasks.length}):\n\n${taskList}`);
   } catch (error) {
-    ctx.reply('❌ Ошибка при получении пользователей');
+    ctx.reply('❌ Ошибка при получении задач');
     console.error('API Error:', error.response?.data || error.message);
   }
 };
 
 // Обработчики команд для работы с пользователями
-bot.command('get_all_tasks', (ctx) => getAllUsers(ctx));
+bot.command('get_all_tasks', (ctx) => getAllTasks(ctx));
 
 // Обработчики команд
 bot.start(async (ctx) => {
