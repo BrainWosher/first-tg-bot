@@ -1,28 +1,18 @@
 require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 const axios = require('axios');
-const { gameOptions, againOptions } = require('./options');
+// const { gameOptions, againOptions } = require('./options');
 const { TELEGRAM_BOT_TOKEN } = require('./.env');
 
-const API_URL = 'http://localhost:3000/api/v1/users/';
+const API_URL = 'http://localhost:3000/api/v1/tasks/';
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
-const chats = {};
-
-// Инициализация игры
-const startGame = async (ctx) => {
-  const chatId = ctx.chat.id;
-  await ctx.reply('Сейчас я загадаю число от 0 до 9. Ты должен его угадать.');
-  const randomNumber = Math.floor(Math.random() * 10);
-  chats[chatId] = randomNumber;
-  await ctx.reply('Отгадай число.', gameOptions);
-};
 
 const getAllUsers = async (ctx) => {
   try {
     const response = await axios.get(API_URL);
     const users = response.data;
-    // console.log(users);
-    // console.log(ctx);
+    console.log(users);
+    console.log(ctx);
 
     if (!users.length) return ctx.reply('Нет зарегистрированных пользователей');
 
@@ -38,7 +28,7 @@ const getAllUsers = async (ctx) => {
 };
 
 // Обработчики команд для работы с пользователями
-bot.command('get_all_users', (ctx) => getAllUsers(ctx));
+bot.command('get_all_tasks', (ctx) => getAllUsers(ctx));
 
 // Обработчики команд
 bot.start(async (ctx) => {
@@ -54,8 +44,6 @@ bot.command('info', (ctx) => {
   return ctx.reply(`Тебя зовут ${user.first_name} ${user.last_name || ''}`);
 });
 
-bot.command('game', (ctx) => startGame(ctx));
-
 bot.command('get_all_users', async (ctx) => {
   try {
     // Здесь будет логика получения пользователей
@@ -64,23 +52,13 @@ bot.command('get_all_users', async (ctx) => {
     console.error(error);
   }
 });
-
-// Обработка callback-кнопок
-bot.action('/again', (ctx) => {
-  ctx.deleteMessage();
-  return startGame(ctx);
-});
-
 // Обработка неизвестных команд
 bot.on('text', (ctx) => {
   ctx.reply('Я тебя не понимаю, попробуй еще раз!');
 });
 
 // Запуск бота
-bot
-  .launch()
-  .then(() => console.log('Бот успешно запущен'))
-  .catch((err) => console.error('Ошибка запуска:', err));
+bot.launch();
 
 // Graceful shutdown
 process.once('SIGINT', () => bot.stop('SIGINT'));
