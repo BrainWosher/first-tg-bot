@@ -1,11 +1,16 @@
 require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 const axios = require('axios');
-// const { gameOptions, againOptions } = require('./options');
 const { TELEGRAM_BOT_TOKEN } = require('./.env');
 
 const API_URL = 'http://localhost:3000/api/v1/tasks/';
 const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
+
+bot.telegram.setMyCommands([
+  { command: 'start', description: 'Initial welcome' },
+  { command: 'info', description: 'User info' },
+  { command: 'get_all_tasks', description: 'All tasks' },
+]);
 
 const getAllUsers = async (ctx) => {
   try {
@@ -44,14 +49,6 @@ bot.command('info', (ctx) => {
   return ctx.reply(`Тебя зовут ${user.first_name} ${user.last_name || ''}`);
 });
 
-bot.command('get_all_users', async (ctx) => {
-  try {
-    // Здесь будет логика получения пользователей
-    await ctx.reply('Функционал в разработке 🛠');
-  } catch (error) {
-    console.error(error);
-  }
-});
 // Обработка неизвестных команд
 bot.on('text', (ctx) => {
   ctx.reply('Я тебя не понимаю, попробуй еще раз!');
@@ -59,6 +56,7 @@ bot.on('text', (ctx) => {
 
 // Запуск бота
 bot.launch();
+console.log('🤖 Бот запущен!');
 
 // Graceful shutdown
 process.once('SIGINT', () => bot.stop('SIGINT'));
